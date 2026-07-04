@@ -50,7 +50,7 @@ router.post('/', authenticate, requireRole('Contractor'), upload.single('bidDocu
 
   const result = db.prepare(
     "INSERT INTO SUBMISSIONS (UserID, TenderID, FilePath, Status) VALUES (?, ?, ?, 'Received')"
-  ).run(req.user.id, tenderID, req.file.path);
+  ).run(req.user.id, tenderID, req.file.filename);
 
   db.prepare(
     "INSERT INTO AUDIT_LOG (EventType, UserID, AffectedRecord, IPAddress) VALUES (?, ?, ?, ?)"

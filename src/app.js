@@ -11,6 +11,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
+// Serve uploads cleanly (extracting basename for absolute path backward compatibility)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/uploads/')) {
+    const filename = path.basename(req.path);
+    const filePath = path.join(__dirname, 'uploads', filename);
+    return res.sendFile(filePath, (err) => {
+      if (err) {
+        res.status(404).send('Document not found');
+      }
+    });
+  }
+  next();
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/tenders', require('./routes/tenders'));

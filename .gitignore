@@ -45,3 +45,7 @@ yarn-error.log*
 *.sw?
 .DS_Store
 Thumbs.db
+
+# Project handoff and thesis documentation files
+PROJECT_HANDOFF.md
+UMAR_YAU_SADIQ_Main.md

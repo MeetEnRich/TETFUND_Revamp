@@ -41,7 +41,7 @@ This project is a final year Computer Science project for **Umar, Ya'u Sadiq (20
 *   **Database (Production)**: MySQL (v8 compatible)
 *   **Authentication**: JSON Web Tokens (JWT) + bcryptjs
 *   **File Uploads**: Multer
-*   **Frontend**: HTML5, CSS3 (Tailwind CSS base + custom inline responsive style overrides), Vanilla JavaScript (ES6+)
+*   **Frontend**: HTML5, CSS3 (Custom design system using CSS variables), Vanilla JavaScript (ES6+)
 
 ---
 
@@ -69,7 +69,6 @@ tetfund-revamp/
 │   ├── tetfund.db                ← Live development SQLite database (gitignored)
 │   └── *.json                    ← Scraped seeds (management team, navigation)
 ├── scripts/                      ← Workspace build and maintenance tools
-│   ├── fix_pages.js              ← Page-compiler generating templates into public/
 │   └── migrate_all.js            ← Database migration tool
 ├── .env                          ← Environment configurations (gitignored)
 ├── .gitignore                    ← Git ignore rules
@@ -112,11 +111,6 @@ node scripts/migrate_all.js
 ```
 *(Alternatively, you can run `node database/seed_dummy_data.js` to populate mock bid entries for testing).*
 
-### 3. Generate HTML Templates
-Compile the frontend static pages using the template builder:
-```bash
-node scripts/fix_pages.js
-```
 
 ### 4. Start the Application
 Start the Express server locally:
@@ -127,5 +121,7 @@ The application will be running at `http://localhost:3000`.
 
 ---
 
-## 💡 Production Styling Note (Tailwind Purging)
-This project operates with a pre-compiled and purged Tailwind CSS stylesheet. To ensure visual stability and prevent mobile layout classes (like scroll handlers and grids) from being ignored, **all newly added components use explicit inline CSS styles** (e.g. `style="overflow-x: auto;"`). Do not rely on JIT-compiled Tailwind utility classes for new HTML wrappers.
+## 💡 Custom Styling System
+This project features a fully custom responsive styling system defined in `public/css/styles.css` using modern CSS Custom Properties (variables). 
+
+All layouts are mobile-first and fully responsive, ensuring native scrolling overlays and clean grid collapse. If you add new elements or modules, style them using the semantic classes defined in the stylesheet rather than inline styling or utility frameworks.
