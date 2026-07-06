@@ -105,11 +105,15 @@ npm install
 ```
 
 ### 2. Setup and Seed the Database
-Run migrations to set up the SQLite schema and seed it with original scraped news/nav data:
+Initialize the SQLite database schema, register the administrator account, and seed scraped news articles:
 ```bash
-node scripts/migrate_all.js
+npm run db:init
 ```
-*(Alternatively, you can run `node database/seed_dummy_data.js` to populate mock bid entries for testing).*
+
+To seed mock contractors, active tenders, and dummy bid submissions for comprehensive testing:
+```bash
+npm run db:seed
+```
 
 
 ### 4. Start the Application
