@@ -1,5 +1,12 @@
 const db = require('../src/config/db');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
+
+const uploadsDir = path.join(__dirname, '../src/uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 console.log('Cleaning existing dummy data...');
 db.prepare("DELETE FROM AUDIT_LOG").run();
@@ -106,6 +113,11 @@ for (const sub of submissionsData) {
     if (tender && contractor) {
         const randomTime = new Date(Date.now() - Math.floor(Math.random() * 86400000 * 10)).toISOString();
         subsStmt.run(tender.id, contractor.id, sub.file, randomTime, sub.status);
+        
+        // Write a dummy PDF/ZIP file to prevent 404s when testing
+        const filePath = path.join(uploadsDir, sub.file);
+        fs.writeFileSync(filePath, `%PDF-1.4\n% [Mock PDF File for ${contractor.name}]\nThis is a mock bid proposal document seeded for ${contractor.name} bidding on "${tender.title}".`);
+        
         bidCount++;
     }
 }

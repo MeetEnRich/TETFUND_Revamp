@@ -100,4 +100,38 @@ router.get('/stats', (req, res) => {
   });
 });
 
+// Delete a tender and its associated submissions
+router.delete('/tenders/:id', (req, res) => {
+  const tenderID = req.params.id;
+
+  const deleteSubmissions = db.prepare("DELETE FROM SUBMISSIONS WHERE TenderID = ?");
+  const deleteTender = db.prepare("DELETE FROM TENDERS WHERE TenderID = ?");
+
+  const deleteTx = db.transaction((id) => {
+    deleteSubmissions.run(id);
+    deleteTender.run(id);
+  });
+
+  deleteTx(tenderID);
+
+  db.prepare(
+    "INSERT INTO AUDIT_LOG (EventType, UserID, AffectedRecord, IPAddress) VALUES (?, ?, ?, ?)"
+  ).run('Delete Tender', req.user.id, tenderID, req.ip);
+
+  res.json({ message: 'Tender and its submissions deleted successfully' });
+});
+
+// Delete a news article
+router.delete('/news/:id', (req, res) => {
+  const newsID = req.params.id;
+  
+  db.prepare("DELETE FROM NEWS WHERE NewsID = ?").run(newsID);
+
+  db.prepare(
+    "INSERT INTO AUDIT_LOG (EventType, UserID, AffectedRecord, IPAddress) VALUES (?, ?, ?, ?)"
+  ).run('Delete News', req.user.id, newsID, req.ip);
+
+  res.json({ message: 'News article deleted successfully' });
+});
+
 module.exports = router;

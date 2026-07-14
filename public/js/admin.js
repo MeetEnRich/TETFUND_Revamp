@@ -43,6 +43,8 @@ function switchAdminView(viewId) {
 
     if (viewId === 'overview') loadStats();
     if (viewId === 'submissions') loadSubmissions();
+    if (viewId === 'tenders') loadAdminTenders();
+    if (viewId === 'news') loadAdminNews();
 }
 
 async function loadStats() {
@@ -118,6 +120,7 @@ async function handleTenderSubmit(e) {
         });
         showToast('Tender published successfully!', 'success');
         e.target.reset();
+        loadAdminTenders();
         loadStats();
     } catch (err) {
         // error handled
@@ -140,6 +143,7 @@ async function handleNewsSubmit(e) {
         });
         showToast('News published successfully!', 'success');
         e.target.reset();
+        loadAdminNews();
     } catch (err) {
         // error handled
     }
@@ -243,5 +247,80 @@ async function updateSubmissionStatus(subId, status) {
         renderAdminSubmissions();
     } catch (err) {
         renderAdminSubmissions(); // reset select on error
+    }
+}
+
+async function loadAdminTenders() {
+    const tbody = document.getElementById('admin-tenders-list');
+    if (!tbody) return;
+    try {
+        const tenders = await apiFetch('/tenders');
+        if (tenders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-gray-500 text-sm">No tenders published yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = tenders.map(t => {
+            let statusColor = 'bg-green-100 text-green-800';
+            if (t.Status === 'Draft') statusColor = 'bg-gray-100 text-gray-800';
+            if (t.Status === 'Closed') statusColor = 'bg-red-100 text-red-800';
+
+            return `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-semibold text-sm">${t.Title}</td>
+                <td class="p-3 text-sm">${t.Category}</td>
+                <td class="p-3"><span class="px-2 py-0.5 text-xs font-bold rounded-full ${statusColor}">${t.Status}</span></td>
+                <td class="p-3 text-center">
+                    <button class="btn btn-danger btn-xs" onclick="deleteTender(${t.TenderID})">Delete</button>
+                </td>
+            </tr>
+        `}).join('');
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-red-500">Failed to load tenders.</td></tr>';
+    }
+}
+
+async function deleteTender(id) {
+    if (!confirm('Are you sure you want to delete this tender and all its associated contractor submissions? This action cannot be undone.')) return;
+    try {
+        await apiFetch(`/admin/tenders/${id}`, { method: 'DELETE' });
+        showToast('Tender deleted successfully', 'success');
+        loadAdminTenders();
+        loadStats();
+    } catch (err) {
+        // error handled
+    }
+}
+
+async function loadAdminNews() {
+    const tbody = document.getElementById('admin-news-list');
+    if (!tbody) return;
+    try {
+        const news = await apiFetch('/news');
+        if (news.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-gray-500 text-sm">No news articles published yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = news.map(n => `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 font-semibold text-sm">${n.Title}</td>
+                <td class="p-3 text-sm text-gray-500">${new Date(n.DatePosted).toLocaleDateString()}</td>
+                <td class="p-3 text-center">
+                    <button class="btn btn-danger btn-xs" onclick="deleteNews(${n.NewsID})">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="3" class="p-3 text-center text-red-500">Failed to load news.</td></tr>';
+    }
+}
+
+async function deleteNews(id) {
+    if (!confirm('Are you sure you want to delete this news article?')) return;
+    try {
+        await apiFetch(`/admin/news/${id}`, { method: 'DELETE' });
+        showToast('News article deleted successfully', 'success');
+        loadAdminNews();
+    } catch (err) {
+        // error handled
     }
 }
